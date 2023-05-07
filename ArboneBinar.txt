@@ -1,0 +1,276 @@
+#include<iostream>
+
+class ArbBin {
+protected:
+	class Node {
+	public:
+		int val;
+		Node* dr;
+		Node* st;
+		Node* parinte;
+
+		Node(int val) {
+			this->val = val;
+			st = NULL;
+			dr = NULL;
+			parinte = NULL;
+		}
+		Node(int val, Node* p) {
+			this->val = val;
+			st = NULL;
+			dr = NULL;
+			parinte = p;
+		}
+
+
+	};
+	Node* radacina = NULL;
+	int Yes = 0;
+	Node* insert2(Node* node, int val);
+	void inorder(Node* node);
+	void find2(Node* node, int val);
+	Node* succ2(Node* node, int val);
+	Node* pred2(Node* node,int val);
+	Node* del2(Node* node, int val);
+public:
+	void Interval(int x, int y, Node* node);
+	Node* GetRadacina();
+	void pred(int val);
+	void del(int val);
+	void succ(int val);
+	void find(int val);
+	void insert1(int val);
+	void print();
+};
+ArbBin::Node* ArbBin::GetRadacina() {
+	return this->radacina;
+}
+ArbBin::Node* ArbBin::del2(Node* node, int val) {
+	if (node == NULL) {
+		return NULL;
+	}
+	if (val < node->val) {
+		node->st = del2(node->st, val);
+	}
+	else if (val > node->val) {
+		node->dr = del2(node->dr, val);
+	}
+	else {
+		if (node->st == NULL) {
+			Node* Gasit = node->dr;
+			delete node;
+			return Gasit;
+		}
+		else if (node->dr == NULL) {
+			Node* Gasit = node->st;
+			delete node;
+			return Gasit;
+		}
+		else {
+			Node* Gasit = node->dr;
+			while (Gasit->st != NULL) {
+				Gasit = Gasit->st;
+			}
+			node->val = Gasit->val;
+			node->dr = del2(node->dr, Gasit->val);
+		}
+	}
+	return node;
+}
+void ArbBin::del(int val) {
+	del2(radacina, val);
+}
+ArbBin::Node* ArbBin::succ2(Node* node, int val) {
+	if (node == NULL) {
+		return NULL;
+	}
+	if (node->val == val) {
+		if (node->dr != NULL) {
+			Node* temp = node->dr;
+			while (temp->st != NULL) {
+				temp = temp->st;
+			}
+			return temp;
+		}
+		else {
+			Node* p = node->parinte;
+			while (p != NULL && node == p->st) {
+				node = p;
+				p = p->parinte;
+			}
+			return p;
+		}
+	}
+	if (val < node->val) {
+		return succ2(node->st, val);
+	}
+	else {
+		return succ2(node->dr, val);
+	}
+}
+void ArbBin::succ(int val) {
+	Node* Gasit2 = succ2(radacina, val);
+	if (Gasit2 != NULL) {
+		std::cout << "Succesorul lui " << val << " este: " << Gasit2->val << std::endl;
+	}
+	else {
+		std::cout << "Nu exista succesor pentru " << val << std::endl;
+	}
+}
+ArbBin::Node* ArbBin::pred2(Node* node, int val) {
+	if (node == NULL) {
+		return NULL;
+	}
+	if (node->val == val) {
+		if (node->st != NULL) {
+			Node* temp = node->st;
+			while (temp->dr != NULL) {
+				temp = temp->dr;
+			}
+			return temp;
+		}
+		else {
+			Node* p = node->parinte;
+			while (p != NULL && node == p->st) {
+				node = p;
+				p = p->parinte;
+			}
+			return p;
+		}
+	}
+	if (val < node->val) {
+		return pred2(node->st, val);
+	}
+	else {
+		return pred2(node->dr, val);
+	}
+}
+void ArbBin::pred(int val) {
+	Node* Gasit = pred2(radacina, val);
+	if (Gasit != NULL) {
+		std::cout << "Predecesorul lui " << val << " este: " << Gasit->val << std::endl;
+	}
+	else {
+		std::cout << "Nu exista predecesor pentru " << val << std::endl;
+	}
+}
+void ArbBin::find2(Node* node, int val) {
+	if (node == NULL) {
+		return;
+	}
+	if (node->val == val) {
+		Yes = 1;
+		return;
+	}
+	if (val < node->val) {
+		find2(node->st, val);
+	}
+	else {
+		find2(node->dr, val);
+	}
+}
+void ArbBin::find(int val) {
+	find2(radacina, val);
+	if (Yes != 0) {
+		std::cout << "Este gasit!" << std::endl;
+
+	}
+	else {
+		std::cout << "Nu este gasit!" << std::endl;
+	}
+}
+void ArbBin::insert1(int val) {
+	if (radacina == NULL) {
+		radacina= new Node(val);
+	}else{
+	insert2(radacina, val);}
+}
+ArbBin::Node* ArbBin::insert2(Node* node, int val) {
+	if (val < node->val) {
+		if (node->st == NULL) {
+			node->st = new Node(val);
+			node->st->parinte = node;
+		}
+		else {
+			insert2(node->st, val);
+		}
+	}
+	if (val > node->val) {
+		if (node->dr == NULL) {
+			node->dr = new Node(val);
+			node->dr->parinte = node;
+		}
+		else {
+			insert2(node->dr, val);
+		}
+	}
+	return 0;
+}
+
+void ArbBin::inorder(Node* node) {
+	if (node == NULL) {
+		return;
+	}
+	if (node->val != NULL) {
+		std::cout << "Nod: " << node->val<<std::endl;
+	}
+	else {
+		std::cout << "NU are nod" << std::endl;
+	}
+	if (node->st != NULL) {
+		std::cout << "Nod stanga: " << node->st->val << std::endl;
+	}
+	else {
+		std::cout << "NU are nod stanga" << std::endl;
+	}
+	if (node->dr != NULL) {
+		std::cout << "Nod dreapta: " << node->dr->val << std::endl;
+	}
+	else {
+		std::cout << "NU are nod dreapta" << std::endl;
+	}
+	if (node->parinte != NULL) {
+	std::cout << "Parinte: " << node->parinte->val << std::endl;
+}
+	else {
+		std::cout << "NU are parinte" << std::endl;
+	}
+	inorder(node->st);
+	inorder(node->dr);
+}
+void ArbBin::Interval(int x, int y, Node* node) {
+	if (node == NULL) {
+		return;
+	}
+	if (node->val < x) {
+		Interval(x, y, node->dr);
+	}
+	else if (node->val > y) {
+		Interval(x, y, node->st);
+	}
+	else {
+		Interval(x, y, node->st);
+		std::cout << node->val << " ";
+		Interval(x, y, node->dr);
+	}
+}
+void ArbBin::print() {
+	inorder(radacina);
+}
+
+int main() {
+	ArbBin AB;
+	AB.insert1(18);
+	AB.insert1(20);
+	AB.insert1(17);
+	AB.insert1(3);
+	AB.insert1(7);
+	AB.insert1(2);
+	AB.insert1(4);
+	AB.pred(18);
+	AB.succ(3);
+	AB.find(5);
+	AB.del(17);
+	AB.Interval(2, 20, AB.GetRadacina());
+	AB.print();
+}
